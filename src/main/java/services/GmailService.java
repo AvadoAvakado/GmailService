@@ -46,10 +46,7 @@ public class GmailService implements MailService{
     /**
      * If modifying these scopes, delete your previously saved tokens/ folder.
      */
-    private static final List<String> SCOPES = new ArrayList<String>(){{
-        add(GmailScopes.GMAIL_READONLY);
-        add(GmailScopes.GMAIL_SEND);
-    }};
+    private static final List<String> SCOPES = Collections.singletonList(GmailScopes.MAIL_GOOGLE_COM);
     private final String credentialsFilePath;
     private final Gmail service;
 
@@ -127,7 +124,6 @@ public class GmailService implements MailService{
      *
      * @param request
      * @return List of Messages. Each message have only minimal attributes - id and threadId.
-     * Or null if there are no such message for user
      * @throws IOException
      */
     private List<Message> getMessagesMinimal(Gmail.Users.Messages.List request) throws IOException {
@@ -381,5 +377,22 @@ public class GmailService implements MailService{
                     "Stack trace: %s", user.toString(), e.getMessage(), Arrays.toString(e.getStackTrace())));
         }
         return isSent;
+    }
+
+    public boolean deleteAllMessages() {
+        boolean isMessagesDeleted = false;
+        try {
+            Gmail.Users.Messages.List allMessagesRequest = getMessagesRequestDefault();
+            List<Message> allMessages = getMessagesMinimal(allMessagesRequest);
+            for (Message message : allMessages) {
+                service.users().messages().delete(ACCOUNT_USER, message.getId()).execute();
+            }
+            log.info(String.format("Successfully deleted %s messages for %s user", allMessages.size(), user.toString()));
+            isMessagesDeleted = true;
+        } catch (IOException e) {
+            log.warn(String.format("An error has occurred while deleting all messages for %s user.\n" +
+                    "Message: %s\nStack trace: %s", user.toString(), e.getMessage(), Arrays.toString(e.getStackTrace())));
+        }
+        return isMessagesDeleted;
     }
 }

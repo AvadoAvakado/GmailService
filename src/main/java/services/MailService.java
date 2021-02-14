@@ -24,4 +24,6 @@ public interface MailService {
     int getReceivedMailsAmount();
 
     int getReceivedMailsWithSubjectAmount(String subject);
+
+    boolean deleteAllMessages();
 }
