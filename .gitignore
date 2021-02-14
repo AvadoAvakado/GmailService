@@ -1,0 +1,9 @@
+.idea
+target
+logs/
+*.iml
+
+emailAttachments/
+tokens/
+src/main/resources/gmailcredentials
+
